@@ -12,7 +12,7 @@
                 <field name="partner_verified" invisible="1"/>
                 <div invisible="partner_verified" class="text-warning">
                     <i class="fa fa-exclamation-triangle"/>
-                    <span> Kontak belum diverifikasi</span>
+                    <span> Contact not verified</span>
                 </div>
             </xpath>
 

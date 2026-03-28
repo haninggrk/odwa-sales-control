@@ -20,7 +20,7 @@ class StockPicking(models.Model):
     def action_lock_date(self):
         self.ensure_one()
         if not self.scheduled_date:
-            raise UserError(_('Silakan atur tanggal pengiriman terlebih dahulu sebelum mengunci.'))
+            raise UserError(_('Please set the delivery date before locking it.'))
         self.is_date_locked = True
         self._send_odwa_webhook('delivery_locked')
         return True
@@ -38,9 +38,9 @@ class StockPicking(models.Model):
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
-            'params': {
+                'params': {
                 'title': _('WhatsApp'),
-                'message': _('Notifikasi pengiriman dikirim ke customer.'),
+                'message': _('Delivery notification sent to customer.'),
                 'type': 'success',
                 'sticky': False,
             },
@@ -51,8 +51,8 @@ class StockPicking(models.Model):
             for picking in self:
                 if picking.is_date_locked:
                     raise UserError(_(
-                        'Tanggal pengiriman sudah dikunci. '
-                        'Silakan buka kunci terlebih dahulu sebelum mengubah tanggal.'
+                        'Delivery date is locked. '
+                        'Please unlock it before changing the date.'
                     ))
         res = super().write(vals)
         # After saving a new scheduled_date, prompt to lock

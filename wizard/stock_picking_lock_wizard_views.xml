@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Lock Delivery Date?">
                 <group>
-                    <p>Tanggal pengiriman telah diubah. Apakah Anda ingin mengunci tanggal ini dan memberitahu customer via WhatsApp?</p>
+                    <p>The delivery date has been changed. Do you want to lock this date and notify the customer via WhatsApp?</p>
                     <field name="picking_id" invisible="1"/>
                 </group>
                 <footer>

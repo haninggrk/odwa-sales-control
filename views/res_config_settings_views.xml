@@ -25,13 +25,13 @@
 
                     <!-- Verification -->
                     <setting string="Bypass Contact Verification (WhatsApp)"
-                             help="Jika diaktifkan, WhatsApp bot tetap bisa konfirmasi order meskipun kontak belum diverifikasi.">
+                             help="If enabled, the WhatsApp bot may confirm orders even when the contact has not been verified.">
                         <field name="bypass_contact_verification"/>
                     </setting>
 
                     <!-- Auto-Invoice -->
                     <setting string="Auto-Invoice on Delivery"
-                             help="Otomatis buat invoice setelah delivery divalidasi.">
+                             help="Automatically create an invoice when a delivery is validated.">
                         <div class="content-group">
                             <div class="row mt16">
                                 <label for="auto_invoice_on_delivery" class="col-lg-3 o_light_label"/>
@@ -42,24 +42,24 @@
 
                     <!-- WhatsApp UI Sales -->
                     <setting string="WhatsApp Notification for UI Sales"
-                             help="Kirim notifikasi WhatsApp ke customer saat quotation dikonfirmasi dari Odoo UI.">
+                             help="Send a WhatsApp notification to the customer when a quotation is confirmed from the Odoo UI.">
                         <field name="whatsapp_ui_sales_notification"/>
                     </setting>
 
                     <!-- Quotation Edit Link -->
                     <setting string="Quotation Edit Link (WhatsApp)"
-                             help="Sertakan link edit di pesan WhatsApp quotation agar customer bisa ubah item.">
+                             help="Include an edit link in the WhatsApp quotation message. The link is intended for salesperson use to modify quotation items; customers cannot edit items through this link.">
                         <field name="enable_quotation_edit_link"/>
                     </setting>
 
                     <!-- Overdue Reminder -->
                     <setting string="Overdue Payment Reminder"
-                             help="Kirim reminder WhatsApp setelah X hari dari jatuh tempo invoice. 0 = nonaktif.">
+                             help="Send a WhatsApp reminder X days after the invoice due date. 0 = disabled.">
                         <div class="content-group">
                             <div class="row mt16">
                                 <label for="overdue_reminder_days" class="col-lg-3 o_light_label"/>
                                 <field name="overdue_reminder_days" class="col-lg-2"/>
-                                <span class="col-lg-3 o_light_label">hari setelah jatuh tempo</span>
+                                <span class="col-lg-3 o_light_label">days after due date</span>
                             </div>
                         </div>
                     </setting>

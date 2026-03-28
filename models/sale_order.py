@@ -22,7 +22,7 @@ class SaleOrder(models.Model):
             if not order.partner_id.is_verified:
                 return {
                     'type': 'ir.actions.act_window',
-                    'name': _('Kontak Belum Diverifikasi'),
+                    'name': _('Contact Not Verified'),
                     'res_model': 'sale.confirm.wizard',
                     'view_mode': 'form',
                     'target': 'new',
@@ -96,9 +96,9 @@ class SaleOrder(models.Model):
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
-                'params': {
+                    'params': {
                     'title': _('WhatsApp'),
-                    'message': _('URL webhook belum dikonfigurasi di pengaturan.'),
+                    'message': _('Webhook URL is not configured in settings.'),
                     'type': 'warning',
                     'sticky': False,
                 },
@@ -130,9 +130,9 @@ class SaleOrder(models.Model):
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
-                'params': {
+                    'params': {
                     'title': _('WhatsApp'),
-                    'message': _('Gagal mengirim notifikasi WhatsApp.'),
+                    'message': _('Failed to send WhatsApp notification.'),
                     'type': 'danger',
                     'sticky': False,
                 },
@@ -141,9 +141,9 @@ class SaleOrder(models.Model):
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
-            'params': {
+                'params': {
                 'title': _('WhatsApp'),
-                'message': _('Quotation dikirim ke customer via WhatsApp.'),
+                'message': _('Quotation sent to customer via WhatsApp.'),
                 'type': 'success',
                 'sticky': False,
             },
