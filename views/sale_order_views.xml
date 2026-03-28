@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Show verified status on sale order form -->
+    <record id="view_order_form_verification" model="ir.ui.view">
+        <field name="name">sale.order.form.verification</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="partner_verified" invisible="1"/>
+                <div invisible="partner_verified" class="text-warning">
+                    <i class="fa fa-exclamation-triangle"/>
+                    <span> Kontak belum diverifikasi</span>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Send to WhatsApp button in statusbar -->
+    <record id="view_order_form_whatsapp_button" model="ir.ui.view">
+        <field name="name">sale.order.form.whatsapp.button</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//header" position="inside">
+                <button name="action_send_to_whatsapp" type="object"
+                        string="Send to WhatsApp" icon="fa-whatsapp"
+                        class="btn-success"
+                        confirm="Send quotation/order + PDF to customer via WhatsApp?"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

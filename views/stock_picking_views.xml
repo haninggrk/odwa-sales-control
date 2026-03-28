@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Delivery date lock: hidden field + readonly + locked indicator -->
+    <record id="view_picking_form_date_lock" model="ir.ui.view">
+        <field name="name">stock.picking.form.date.lock</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='scheduled_date']" position="before">
+                <field name="is_date_locked" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='scheduled_date']" position="attributes">
+                <attribute name="readonly">is_date_locked</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+                <span invisible="not is_date_locked" class="text-success ms-2">
+                    <i class="fa fa-lock"/> Date Locked
+                </span>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Statusbar buttons: Lock Date, Unlock Date, Send to WhatsApp -->
+    <record id="view_picking_form_statusbar_buttons" model="ir.ui.view">
+        <field name="name">stock.picking.form.statusbar.buttons</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//header" position="inside">
+                <button name="action_lock_date" type="object"
+                        string="Lock Date" class="btn-primary"
+                        invisible="is_date_locked"
+                        confirm="Lock delivery date? Customer will be notified via WhatsApp."/>
+                <button name="action_unlock_date" type="object"
+                        string="Unlock Date" class="btn-secondary"
+                        invisible="not is_date_locked"
+                        confirm="Unlock delivery date? Customer will be notified."/>
+                <button name="action_send_to_whatsapp" type="object"
+                        string="Send to WhatsApp" icon="fa-whatsapp"
+                        class="btn-success"
+                        confirm="Send delivery info + PDF to customer via WhatsApp?"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

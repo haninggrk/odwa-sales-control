@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add ODWA settings to Inventory settings -->
+    <record id="res_config_settings_view_form_odwa" model="ir.ui.view">
+        <field name="name">res.config.settings.form.odwa</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//app[@name='stock']" position="inside">
+                <block title="ODWA Sales Control" name="odwa_sales_control">
+
+                    <!-- Connection -->
+                    <setting string="ODWA Webhook URL"
+                             help="Webhook endpoint for WhatsApp notifications (delivery lock, send order, reminders, etc).">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="odwa_webhook_url" class="col-lg-3 o_light_label"/>
+                                <field name="odwa_webhook_url" class="col-lg-6"
+                                       placeholder="https://odwa.olda.co.id/webhooks/odoo"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <!-- Verification -->
+                    <setting string="Bypass Contact Verification (WhatsApp)"
+                             help="Jika diaktifkan, WhatsApp bot tetap bisa konfirmasi order meskipun kontak belum diverifikasi.">
+                        <field name="bypass_contact_verification"/>
+                    </setting>
+
+                    <!-- Auto-Invoice -->
+                    <setting string="Auto-Invoice on Delivery"
+                             help="Otomatis buat invoice setelah delivery divalidasi.">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="auto_invoice_on_delivery" class="col-lg-3 o_light_label"/>
+                                <field name="auto_invoice_on_delivery" class="col-lg-4"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <!-- WhatsApp UI Sales -->
+                    <setting string="WhatsApp Notification for UI Sales"
+                             help="Kirim notifikasi WhatsApp ke customer saat quotation dikonfirmasi dari Odoo UI.">
+                        <field name="whatsapp_ui_sales_notification"/>
+                    </setting>
+
+                    <!-- Quotation Edit Link -->
+                    <setting string="Quotation Edit Link (WhatsApp)"
+                             help="Sertakan link edit di pesan WhatsApp quotation agar customer bisa ubah item.">
+                        <field name="enable_quotation_edit_link"/>
+                    </setting>
+
+                    <!-- Overdue Reminder -->
+                    <setting string="Overdue Payment Reminder"
+                             help="Kirim reminder WhatsApp setelah X hari dari jatuh tempo invoice. 0 = nonaktif.">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="overdue_reminder_days" class="col-lg-3 o_light_label"/>
+                                <field name="overdue_reminder_days" class="col-lg-2"/>
+                                <span class="col-lg-3 o_light_label">hari setelah jatuh tempo</span>
+                            </div>
+                        </div>
+                    </setting>
+
+                </block>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

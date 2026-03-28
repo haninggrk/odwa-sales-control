@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add verification stat button + fields to partner form -->
+    <record id="view_partner_form_verification" model="ir.ui.view">
+        <field name="name">res.partner.form.verification</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Stat button in button_box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_verify_contact" type="object"
+                        class="oe_stat_button" icon="fa-check-circle"
+                        invisible="is_verified"
+                        string="Belum Diverifikasi"/>
+                <button name="action_unverify_contact" type="object"
+                        class="oe_stat_button" icon="fa-check-circle"
+                        invisible="not is_verified"
+                        string="Terverifikasi ✓"/>
+            </xpath>
+
+            <!-- Verification details in the form -->
+            <xpath expr="//page[1]" position="before">
+                <group string="Verifikasi Kontak">
+                    <group>
+                        <field name="is_verified" widget="boolean_toggle"/>
+                    </group>
+                    <group invisible="not is_verified">
+                        <field name="verified_by"/>
+                        <field name="verified_date"/>
+                    </group>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

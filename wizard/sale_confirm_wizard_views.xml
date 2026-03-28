@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_confirm_wizard_form" model="ir.ui.view">
+        <field name="name">sale.confirm.wizard.form</field>
+        <field name="model">sale.confirm.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Kontak Belum Diverifikasi">
+                <group>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fa fa-exclamation-triangle"/>
+                        <strong> Kontak <field name="partner_id" readonly="1" class="d-inline"/> belum diverifikasi.</strong>
+                        <br/>
+                        Silakan verifikasi data kontak terlebih dahulu sebelum mengkonfirmasi order ini.
+                    </div>
+                    <field name="sale_order_id" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_verify_and_proceed" type="object"
+                            string="Verifikasi &amp; Lanjutkan" class="btn-primary"/>
+                    <button name="action_cancel" type="object"
+                            string="Batal" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>
