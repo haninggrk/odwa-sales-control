@@ -116,7 +116,6 @@ class StockPicking(models.Model):
                     'Auto-invoice failed for SO %s (picking %s): %s',
                     sale_order.name, picking.name, e,
                 )
-        return super().write(vals)
 
     def _send_odwa_webhook(self, webhook_type):
         webhook_url = self.env['ir.config_parameter'].sudo().get_param(
