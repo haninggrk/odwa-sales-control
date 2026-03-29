@@ -27,43 +27,64 @@ class PickingPortalController(http.Controller):
         ]
         return request.make_response(pdf_content, headers=headers)
 
-    @http.route('/api/odwa/create_invoice', type='json', auth='public', methods=['POST'], csrf=False)
-    def create_invoice(self, order_id, **kwargs):
+    @http.route('/api/odwa/create_invoice', type='http', auth='public', methods=['POST'], csrf=False)
+    def create_invoice(self, **kwargs):
         """Create and post an invoice from a sale order.
         Called by the Node.js app after delivery confirmation.
         Validates Bearer token using Odoo's API key system.
-        Returns invoice info or error.
+        Returns invoice info or error as JSON.
         """
+        import json
+
+        def _json_response(data, status=200):
+            body = json.dumps({'jsonrpc': '2.0', 'result': data})
+            return request.make_response(body, headers=[
+                ('Content-Type', 'application/json'),
+            ])
+
         # Validate bearer token via Odoo's API key lookup
         auth_header = request.httprequest.headers.get('Authorization', '')
         if not auth_header.startswith('Bearer '):
-            return {'error': 'Unauthorized'}
+            return _json_response({'error': 'Unauthorized'}, 401)
         api_key = auth_header[7:].strip()
         if not api_key:
-            return {'error': 'Unauthorized'}
+            return _json_response({'error': 'Unauthorized'}, 401)
 
-        uid = request.env['res.users.apikeys'].sudo()._check_credentials(scope='rpc', key=api_key)
+        try:
+            uid = request.env['res.users.apikeys'].sudo()._check_credentials(scope='rpc', key=api_key)
+        except Exception:
+            uid = None
         if not uid:
-            return {'error': 'Unauthorized'}
+            return _json_response({'error': 'Unauthorized'}, 401)
+
+        # Parse JSON body
+        try:
+            body = json.loads(request.httprequest.get_data(as_text=True))
+            order_id = body.get('params', {}).get('order_id')
+        except Exception:
+            return _json_response({'error': 'Invalid request body'})
+
+        if not order_id:
+            return _json_response({'error': 'order_id is required'})
 
         order = request.env['sale.order'].sudo().browse(order_id)
         if not order.exists():
-            return {'error': 'Sale order not found'}
+            return _json_response({'error': 'Sale order not found'})
 
         if order.invoice_status != 'to invoice':
-            return {'error': f'Order not invoiceable (status: {order.invoice_status})'}
+            return _json_response({'error': f'Order not invoiceable (status: {order.invoice_status})'})
 
         try:
             invoice = order._create_invoices()
             if not invoice:
-                return {'error': 'No invoice created'}
+                return _json_response({'error': 'No invoice created'})
             invoice.action_post()
-            return {
+            return _json_response({
                 'success': True,
                 'invoice_id': invoice.id,
                 'invoice_name': invoice.name,
                 'access_token': invoice.access_token or '',
-            }
+            })
         except Exception as e:
             _logger.warning('ODWA create_invoice failed for SO %s: %s', order.name, e)
-            return {'error': str(e)}
+            return _json_response({'error': str(e)})
