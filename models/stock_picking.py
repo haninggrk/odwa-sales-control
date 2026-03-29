@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import logging
+import uuid
 
 import requests as http_requests
 
@@ -11,8 +12,8 @@ _logger = logging.getLogger(__name__)
 
 
 class StockPicking(models.Model):
-    _inherit = ['stock.picking', 'portal.mixin']
-  
+    _inherit = 'stock.picking'
+
     access_token = fields.Char('Security Token', copy=False)
 
     is_date_locked = fields.Boolean(
@@ -132,8 +133,8 @@ class StockPicking(models.Model):
 
             # Ensure portal access token exists for PDF download
             if not picking.access_token:
-                picking.access_token = self.env['portal.mixin']._generate_access_token()
-                access_token = picking.access_token
+                picking.access_token = uuid.uuid4().hex
+            access_token = picking.access_token
 
             # Determine delivery sequence (1 of N)
             delivery_index = 1
