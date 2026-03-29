@@ -71,6 +71,18 @@ class PickingPortalController(http.Controller):
         if not order.exists():
             return _json_response({'error': 'Sale order not found'})
 
+        # Check if invoice already exists (e.g. auto-created on delivery validation)
+        existing_invoices = order.invoice_ids.filtered(lambda i: i.state == 'posted' and i.move_type == 'out_invoice')
+        if existing_invoices:
+            invoice = existing_invoices[0]
+            return _json_response({
+                'success': True,
+                'invoice_id': invoice.id,
+                'invoice_name': invoice.name,
+                'access_token': invoice.access_token or '',
+                'already_existed': True,
+            })
+
         if order.invoice_status != 'to invoice':
             return _json_response({'error': f'Order not invoiceable (status: {order.invoice_status})'})
 
@@ -84,6 +96,7 @@ class PickingPortalController(http.Controller):
                 'invoice_id': invoice.id,
                 'invoice_name': invoice.name,
                 'access_token': invoice.access_token or '',
+                'already_existed': False,
             })
         except Exception as e:
             _logger.warning('ODWA create_invoice failed for SO %s: %s', order.name, e)
