@@ -19,6 +19,10 @@ class StockPicking(models.Model):
     is_date_locked = fields.Boolean(
         'Delivery Date Locked', default=False, tracking=True,
     )
+    delivery_ready_sent = fields.Boolean(
+        'Delivery Ready Sent', default=False, copy=False,
+        help='True once the delivery_ready WhatsApp notification (PDF + confirmation link) has been sent.',
+    )
 
     def action_lock_date(self):
         self.ensure_one()
@@ -180,6 +184,7 @@ class StockPicking(models.Model):
         today = fields.Date.context_today(self)
         pickings = self.search([
             ('is_date_locked', '=', True),
+            ('delivery_ready_sent', '=', False),
             ('state', 'in', ['confirmed', 'assigned']),
             ('picking_type_code', '=', 'outgoing'),
             ('scheduled_date', '<=', fields.Datetime.to_string(
@@ -191,8 +196,7 @@ class StockPicking(models.Model):
                 continue
             try:
                 picking._send_odwa_webhook('delivery_ready')
-                # Unlock after sending so we don't send again
-                picking.is_date_locked = False
+                picking.delivery_ready_sent = True
                 _logger.info(
                     'Sent delivery_ready for picking %s (SO %s)',
                     picking.name,

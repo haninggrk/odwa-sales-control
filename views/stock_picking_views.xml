@@ -10,6 +10,7 @@
 
             <xpath expr="//field[@name='scheduled_date']" position="before">
                 <field name="is_date_locked" invisible="1"/>
+                <field name="delivery_ready_sent" invisible="1"/>
             </xpath>
 
             <xpath expr="//field[@name='scheduled_date']" position="attributes">
@@ -19,6 +20,9 @@
             <xpath expr="//field[@name='scheduled_date']" position="after">
                 <span invisible="not is_date_locked" class="text-success ms-2">
                     <i class="fa fa-lock"/> Date Locked
+                </span>
+                <span invisible="not delivery_ready_sent" class="text-info ms-2">
+                    <i class="fa fa-whatsapp"/> Delivery Ready Sent
                 </span>
             </xpath>
 
