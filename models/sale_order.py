@@ -59,9 +59,13 @@ class SaleOrder(models.Model):
                 continue
 
             # Ensure portal access token exists
-            access_token = order.access_token
-            if not access_token and hasattr(order, '_portal_ensure_token'):
-                access_token = order._portal_ensure_token()
+            access_token = ''
+            try:
+                access_token = order.access_token or ''
+                if not access_token and hasattr(order, '_portal_ensure_token'):
+                    access_token = order._portal_ensure_token()
+            except Exception:
+                access_token = ''
 
             payload = {
                 'type': 'order_confirmed_ui',
@@ -85,6 +89,17 @@ class SaleOrder(models.Model):
                 )
             except Exception as e:
                 _logger.warning('Failed to send UI sales WA notification for %s: %s', order.name, e)
+
+    def _get_safe_access_token(self):
+        """Return portal access token if available, empty string otherwise."""
+        self.ensure_one()
+        try:
+            token = self.access_token or ''
+            if not token and hasattr(self, '_portal_ensure_token'):
+                token = self._portal_ensure_token()
+            return token or ''
+        except Exception:
+            return ''
 
     def action_send_to_whatsapp(self):
         """Manually send quotation/order to customer via WhatsApp."""
@@ -110,7 +125,7 @@ class SaleOrder(models.Model):
             'order_id': self.id,
             'order_name': self.name or '',
             'state': self.state or '',
-            'access_token': self.access_token or self._portal_ensure_token(),
+            'access_token': self._get_safe_access_token(),
             'partner_id': partner.id if partner else False,
             'partner_name': partner.name if partner else '',
             'partner_phone': (partner.phone_sanitized or partner.phone or '') if partner else '',
