@@ -174,3 +174,32 @@ class StockPicking(models.Model):
                 )
             except Exception as e:
                 _logger.warning('Failed to send ODWA webhook: %s', e)
+
+    def _cron_delivery_ready_notifications(self):
+        """Cron: send delivery_ready webhook for locked pickings whose date is today or past."""
+        today = fields.Date.context_today(self)
+        pickings = self.search([
+            ('is_date_locked', '=', True),
+            ('state', 'in', ['confirmed', 'assigned']),
+            ('picking_type_code', '=', 'outgoing'),
+            ('scheduled_date', '<=', fields.Datetime.to_string(
+                fields.Datetime.now().replace(hour=23, minute=59, second=59)
+            )),
+        ])
+        for picking in pickings:
+            if not picking.partner_id or not (picking.partner_id.phone_sanitized or picking.partner_id.phone):
+                continue
+            try:
+                picking._send_odwa_webhook('delivery_ready')
+                # Unlock after sending so we don't send again
+                picking.is_date_locked = False
+                _logger.info(
+                    'Sent delivery_ready for picking %s (SO %s)',
+                    picking.name,
+                    picking.sale_id.name if picking.sale_id else '-',
+                )
+            except Exception as e:
+                _logger.warning(
+                    'Failed delivery_ready for picking %s: %s',
+                    picking.name, e,
+                )
