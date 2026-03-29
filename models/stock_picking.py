@@ -11,7 +11,8 @@ _logger = logging.getLogger(__name__)
 
 
 class StockPicking(models.Model):
-    _inherit = 'stock.picking'
+    _inherit = ['stock.picking', 'portal.mixin']
+    _name = 'stock.picking'
 
     is_date_locked = fields.Boolean(
         'Delivery Date Locked', default=False, tracking=True,
@@ -129,15 +130,9 @@ class StockPicking(models.Model):
             partner = picking.partner_id
 
             # Ensure portal access token exists for PDF download
-            access_token = ''
-            if 'access_token' in picking._fields:
-                try:
-                    if not picking.access_token and hasattr(picking, '_portal_ensure_token'):
-                        access_token = picking._portal_ensure_token()
-                    else:
-                        access_token = picking.access_token or ''
-                except Exception:
-                    access_token = ''
+            access_token = picking.access_token or ''
+            if not access_token:
+                access_token = picking._portal_ensure_token()
 
             # Determine delivery sequence (1 of N)
             delivery_index = 1

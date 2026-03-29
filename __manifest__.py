@@ -20,7 +20,7 @@
         - Send to WhatsApp buttons on SO and Delivery forms
     """,
     'author': 'ODWA',
-    'depends': ['sale_management', 'stock', 'account'],
+    'depends': ['sale_management', 'stock', 'account', 'portal'],
     'data': [
         'security/ir.model.access.csv',
         'data/ir_cron.xml',
