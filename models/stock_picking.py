@@ -132,7 +132,7 @@ class StockPicking(models.Model):
             access_token = ''
             if hasattr(picking, '_portal_ensure_token'):
                 access_token = picking._portal_ensure_token()
-            elif picking.access_token:
+            elif hasattr(picking, 'access_token') and picking.access_token:
                 access_token = picking.access_token
 
             # Determine delivery sequence (1 of N)
