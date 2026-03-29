@@ -27,12 +27,25 @@ class PickingPortalController(http.Controller):
         ]
         return request.make_response(pdf_content, headers=headers)
 
-    @http.route('/api/odwa/create_invoice', type='json', auth='api_key', methods=['POST'])
+    @http.route('/api/odwa/create_invoice', type='json', auth='public', methods=['POST'], csrf=False)
     def create_invoice(self, order_id, **kwargs):
         """Create and post an invoice from a sale order.
         Called by the Node.js app after delivery confirmation.
+        Validates Bearer token using Odoo's API key system.
         Returns invoice info or error.
         """
+        # Validate bearer token via Odoo's API key lookup
+        auth_header = request.httprequest.headers.get('Authorization', '')
+        if not auth_header.startswith('Bearer '):
+            return {'error': 'Unauthorized'}
+        api_key = auth_header[7:].strip()
+        if not api_key:
+            return {'error': 'Unauthorized'}
+
+        uid = request.env['res.users.apikeys'].sudo()._check_credentials(scope='rpc', key=api_key)
+        if not uid:
+            return {'error': 'Unauthorized'}
+
         order = request.env['sale.order'].sudo().browse(order_id)
         if not order.exists():
             return {'error': 'Sale order not found'}
