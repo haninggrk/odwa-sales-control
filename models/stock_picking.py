@@ -180,8 +180,19 @@ class StockPicking(models.Model):
                 _logger.warning('Failed to send ODWA webhook: %s', e)
 
     def _cron_delivery_ready_notifications(self):
-        """Cron: send delivery_ready webhook for locked pickings whose date is today or past."""
-        today = fields.Date.context_today(self)
+        """Cron: send delivery_ready webhook for locked pickings whose date is today or past.
+
+        Only sends if it is 7 AM or later (in company timezone), UNLESS the
+        delivery is scheduled before 7 AM — in that case send immediately.
+        """
+        from datetime import datetime as dt
+        import pytz
+
+        company_tz = self.env.user.tz or 'Asia/Jakarta'
+        tz = pytz.timezone(company_tz)
+        now_local = dt.now(tz)
+        is_after_7am = now_local.hour >= 7
+
         pickings = self.search([
             ('is_date_locked', '=', True),
             ('delivery_ready_sent', '=', False),
@@ -194,6 +205,13 @@ class StockPicking(models.Model):
         for picking in pickings:
             if not picking.partner_id or not (picking.partner_id.phone_sanitized or picking.partner_id.phone):
                 continue
+
+            # Skip if before 7 AM and delivery is scheduled after 7 AM
+            if not is_after_7am and picking.scheduled_date:
+                sched_local = picking.scheduled_date.astimezone(tz)
+                if sched_local.hour >= 7:
+                    continue  # wait until 7 AM cron run
+
             try:
                 picking._send_odwa_webhook('delivery_ready')
                 picking.delivery_ready_sent = True
