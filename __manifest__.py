@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'ODWA Sales Control',
-    'version': '19.0.2.3.0',
+    'version': '19.0.2.4.0',
     'category': 'Sales',
     'summary': 'WhatsApp sales control: verification, auto-invoice, delivery lock, reminders & more',
     'description': """

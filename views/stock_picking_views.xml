@@ -49,6 +49,18 @@
                         string="Send to WhatsApp" icon="fa-whatsapp"
                         class="btn-success"
                         confirm="Send delivery info + PDF to customer via WhatsApp?"/>
+                <!-- Confirmation link: first-time send (not yet sent, not done) -->
+                <button name="action_send_confirmation_link" type="object"
+                        string="Confirmation Link via WhatsApp" icon="fa-link"
+                        class="btn-info"
+                        invisible="not is_date_locked or delivery_ready_sent or state == 'done'"
+                        confirm="Send confirmation link to customer via WhatsApp?"/>
+                <!-- Confirmation link: resend (already sent, not done) — warns before resending -->
+                <button name="action_send_confirmation_link" type="object"
+                        string="Resend Confirmation Link" icon="fa-exclamation-triangle"
+                        class="btn-warning"
+                        invisible="not is_date_locked or not delivery_ready_sent or state == 'done'"
+                        confirm="Already sent! Are you sure you want to resend the confirmation link to the customer?"/>
             </xpath>
 
         </field>

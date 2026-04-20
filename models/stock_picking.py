@@ -53,6 +53,32 @@ class StockPicking(models.Model):
             },
         }
 
+    def action_send_confirmation_link(self):
+        """Manually send delivery_ready notification (PDF + confirmation link) via WhatsApp.
+
+        Blocked when state is 'done' — the cron handles that automatically.
+        Can be force-resent even if delivery_ready_sent is True (confirmation
+        is shown on the button in that case).
+        """
+        self.ensure_one()
+        if self.state == 'done':
+            raise UserError(_(
+                'Cannot manually send the confirmation link for a completed delivery. '
+                'The cron will handle it automatically within the 07:00–20:00 window.'
+            ))
+        self._send_odwa_webhook('delivery_ready')
+        self.delivery_ready_sent = True
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('WhatsApp'),
+                'message': _('Confirmation link sent to customer.'),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
+
     def write(self, vals):
         if 'scheduled_date' in vals and 'is_date_locked' not in vals:
             for picking in self:
