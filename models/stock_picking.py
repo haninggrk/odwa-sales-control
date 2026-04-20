@@ -191,8 +191,11 @@ class StockPicking(models.Model):
         from datetime import datetime as dt
         import pytz
 
-        # Use company timezone (falls back to Asia/Jakarta if not set)
-        company_tz = self.env.company.partner_id.tz or 'Asia/Jakarta'
+        # Use configured timezone (Settings → Inventory → ODWA), default WIB
+        company_tz = (
+            self.env['ir.config_parameter'].sudo().get_param('odwa_sales_control.delivery_timezone')
+            or 'Asia/Jakarta'
+        )
         tz = pytz.timezone(company_tz)
         now_local = dt.now(tz)
         current_hour = now_local.hour  # 0-23

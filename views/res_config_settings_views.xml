@@ -64,6 +64,18 @@
                         </div>
                     </setting>
 
+                    <!-- Delivery Notification Timezone -->
+                    <setting string="Delivery Notification Timezone"
+                             help="Timezone for the 07:00–20:00 delivery notification window. Use a pytz name: Asia/Jakarta (WIB), Asia/Makassar (WITA), Asia/Jayapura (WIT).">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="odwa_delivery_timezone" class="col-lg-3 o_light_label"/>
+                                <field name="odwa_delivery_timezone" class="col-lg-4"
+                                       placeholder="Asia/Jakarta"/>
+                            </div>
+                        </div>
+                    </setting>
+
                 </block>
             </xpath>
 

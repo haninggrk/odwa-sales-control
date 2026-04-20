@@ -65,3 +65,14 @@ class ResConfigSettings(models.TransientModel):
              '0 = disabled.',
         default=0,
     )
+
+    # ── Delivery Notification Timezone ────────────────────────
+
+    odwa_delivery_timezone = fields.Char(
+        string='Delivery Notification Timezone',
+        config_parameter='odwa_sales_control.delivery_timezone',
+        help='Timezone used for the delivery-ready notification send window (07:00–20:00). '
+             'Use a pytz timezone name, e.g. Asia/Jakarta (WIB), Asia/Makassar (WITA), '
+             'Asia/Jayapura (WIT). Defaults to Asia/Jakarta if not set.',
+        default='Asia/Jakarta',
+    )
