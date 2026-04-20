@@ -182,8 +182,11 @@ class StockPicking(models.Model):
     def _cron_delivery_ready_notifications(self):
         """Cron: send delivery_ready webhook for locked pickings whose date is today or past.
 
-        Only sends if it is 7 AM or later (in company timezone), UNLESS the
-        delivery is scheduled before 7 AM — in that case send immediately.
+        Sending window: 07:00 – 20:00 local (company) timezone.
+        Outside that window the cron exits immediately without sending.
+        Within the window, any eligible picking is sent regardless of its
+        current state (confirmed, assigned, or done) so that pickings that
+        were validated before 07:00 still get notified later that day.
         """
         from datetime import datetime as dt
         import pytz
@@ -191,12 +194,17 @@ class StockPicking(models.Model):
         company_tz = self.env.user.tz or 'Asia/Jakarta'
         tz = pytz.timezone(company_tz)
         now_local = dt.now(tz)
-        is_after_7am = now_local.hour >= 7
+        current_hour = now_local.hour  # 0-23
+
+        # Only run during the 07:00–20:00 window
+        if current_hour < 7 or current_hour >= 20:
+            return
 
         pickings = self.search([
             ('is_date_locked', '=', True),
             ('delivery_ready_sent', '=', False),
-            ('state', 'in', ['confirmed', 'assigned']),
+            # Include 'done' so pickings validated before 07:00 are still caught
+            ('state', 'in', ['confirmed', 'assigned', 'done']),
             ('picking_type_code', '=', 'outgoing'),
             ('scheduled_date', '<=', fields.Datetime.to_string(
                 fields.Datetime.now().replace(hour=23, minute=59, second=59)
@@ -205,12 +213,6 @@ class StockPicking(models.Model):
         for picking in pickings:
             if not picking.partner_id or not (picking.partner_id.phone_sanitized or picking.partner_id.phone):
                 continue
-
-            # Skip if before 7 AM and delivery is scheduled after 7 AM
-            if not is_after_7am and picking.scheduled_date:
-                sched_local = picking.scheduled_date.astimezone(tz)
-                if sched_local.hour >= 7:
-                    continue  # wait until 7 AM cron run
 
             try:
                 picking._send_odwa_webhook('delivery_ready')
