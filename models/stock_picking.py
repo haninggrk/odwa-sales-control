@@ -191,14 +191,19 @@ class StockPicking(models.Model):
         from datetime import datetime as dt
         import pytz
 
-        company_tz = self.env.user.tz or 'Asia/Jakarta'
+        # Use company timezone (falls back to Asia/Jakarta if not set)
+        company_tz = self.env.company.partner_id.tz or 'Asia/Jakarta'
         tz = pytz.timezone(company_tz)
         now_local = dt.now(tz)
         current_hour = now_local.hour  # 0-23
 
-        # Only run during the 07:00–20:00 window
+        # Only run during the 07:00–20:00 window (WIB / company timezone)
         if current_hour < 7 or current_hour >= 20:
             return
+
+        # End of today in WIB → convert back to UTC for the DB comparison
+        end_of_day_local = now_local.replace(hour=23, minute=59, second=59, microsecond=0)
+        end_of_day_utc = end_of_day_local.astimezone(pytz.utc).replace(tzinfo=None)
 
         pickings = self.search([
             ('is_date_locked', '=', True),
@@ -206,9 +211,7 @@ class StockPicking(models.Model):
             # Include 'done' so pickings validated before 07:00 are still caught
             ('state', 'in', ['confirmed', 'assigned', 'done']),
             ('picking_type_code', '=', 'outgoing'),
-            ('scheduled_date', '<=', fields.Datetime.to_string(
-                fields.Datetime.now().replace(hour=23, minute=59, second=59)
-            )),
+            ('scheduled_date', '<=', fields.Datetime.to_string(end_of_day_utc)),
         ])
         for picking in pickings:
             if not picking.partner_id or not (picking.partner_id.phone_sanitized or picking.partner_id.phone):
