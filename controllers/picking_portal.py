@@ -75,11 +75,17 @@ class PickingPortalController(http.Controller):
         existing_invoices = order.invoice_ids.filtered(lambda i: i.state == 'posted' and i.move_type == 'out_invoice')
         if existing_invoices:
             invoice = existing_invoices[0]
+            access_token = invoice.access_token or ''
+            if not access_token and hasattr(invoice, '_portal_ensure_token'):
+                try:
+                    access_token = invoice._portal_ensure_token()
+                except Exception:
+                    pass
             return _json_response({
                 'success': True,
                 'invoice_id': invoice.id,
                 'invoice_name': invoice.name,
-                'access_token': invoice.access_token or '',
+                'access_token': access_token,
                 'already_existed': True,
             })
 
@@ -91,11 +97,17 @@ class PickingPortalController(http.Controller):
             if not invoice:
                 return _json_response({'error': 'No invoice created'})
             invoice.action_post()
+            access_token = invoice.access_token or ''
+            if not access_token and hasattr(invoice, '_portal_ensure_token'):
+                try:
+                    access_token = invoice._portal_ensure_token()
+                except Exception:
+                    pass
             return _json_response({
                 'success': True,
                 'invoice_id': invoice.id,
                 'invoice_name': invoice.name,
-                'access_token': invoice.access_token or '',
+                'access_token': access_token,
                 'already_existed': False,
             })
         except Exception as e:
